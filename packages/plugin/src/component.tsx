@@ -5,7 +5,7 @@ import { Panel, Button, Badge, useState, useEffect } from '@stagewise/toolbar/pl
 
 
 interface AnimationConfig {
-  type: 'css-transition' | 'css-keyframes' | 'framer-motion' | 'react-spring' | 'gsap' | 'lottie';
+  type: 'css-transition' | 'css-keyframes' | 'motion' | 'react-spring' | 'gsap' | 'lottie';
   duration: number;
   easing: string;
   delay: number;
@@ -22,7 +22,7 @@ let currentAnimationConfig: AnimationConfig | null = null;
 const ANIMATION_TYPES = [
   { value: 'css-transition', label: 'CSS Transitions', description: 'Simple property transitions' },
   { value: 'css-keyframes', label: 'CSS Keyframes', description: 'Complex keyframe animations' },
-  { value: 'framer-motion', label: 'Framer Motion', description: 'React animation library' },
+  { value: 'motion/react', label: 'Motion React', description: 'React animation library' },
   { value: 'react-spring', label: 'React Spring', description: 'Spring-physics animations' },
   { value: 'gsap', label: 'GSAP', description: 'Professional animation library' },
   { value: 'lottie', label: 'Lottie', description: 'After Effects animations' },
