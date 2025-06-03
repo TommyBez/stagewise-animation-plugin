@@ -1,6 +1,7 @@
+'use client';
+
 import { ToolbarPlugin } from '@stagewise/toolbar';
-import { Panel, Button, Badge, useToolbar } from '@stagewise/toolbar/plugin-ui';
-import { useState } from 'preact/hooks';
+import { Panel, Button, Badge, useToolbar, useState } from '@stagewise/toolbar/plugin-ui';
 
 
 interface AnimationConfig {

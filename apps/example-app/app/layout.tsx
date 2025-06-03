@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { StagewiseToolbar } from "@stagewise/toolbar-next";
+import { AnimationPlugin } from "stagewise-animation-plugin";
+
+const stagewiseConfig = {
+  plugins: [AnimationPlugin],
+};
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,6 +34,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        {process.env.NODE_ENV === "development" && (
+          <StagewiseToolbar config={stagewiseConfig} />
+        )}
       </body>
     </html>
   );
