@@ -1,7 +1,7 @@
 'use client';
 
-import { ToolbarPlugin } from '@stagewise/toolbar';
-import { Panel, Button, Badge, useToolbar, useState } from '@stagewise/toolbar/plugin-ui';
+import { ToolbarPlugin, UserMessage } from '@stagewise/toolbar';
+import { Panel, Button, Badge, useState, useEffect } from '@stagewise/toolbar/plugin-ui';
 
 
 interface AnimationConfig {
@@ -15,6 +15,9 @@ interface AnimationConfig {
   properties: string[];
   customOptions: Record<string, any>;
 }
+
+// Module-scoped variable to hold the latest config
+let currentAnimationConfig: AnimationConfig | null = null;
 
 const ANIMATION_TYPES = [
   { value: 'css-transition', label: 'CSS Transitions', description: 'Simple property transitions' },
@@ -37,7 +40,6 @@ const COMMON_PROPERTIES = [
 ];
 
 const AnimationPanel = () => {
-  const { sendPrompt } = useToolbar();
   const [config, setConfig] = useState<AnimationConfig>({
     type: 'css-transition',
     duration: 300,
@@ -49,6 +51,11 @@ const AnimationPanel = () => {
     properties: ['opacity', 'transform'],
     customOptions: {}
   });
+
+  // Update module-scoped variable when config changes
+  useEffect(() => {
+    currentAnimationConfig = config;
+  }, [config]);
 
   const [selectedProperties, setSelectedProperties] = useState<string[]>(['opacity', 'transform']);
   const [customProperty, setCustomProperty] = useState('');
@@ -72,69 +79,6 @@ const AnimationPanel = () => {
       updateConfig({ properties: newProperties });
       setCustomProperty('');
     }
-  };
-
-  const handleSendRequest = () => {
-    const selectedType = ANIMATION_TYPES.find(t => t.value === config.type);
-    
-    let prompt = `Create a ${selectedType?.label} animation with the following specifications:\n\n`;
-    prompt += `Animation Type: ${selectedType?.label} (${selectedType?.description})\n`;
-    prompt += `Duration: ${config.duration}ms\n`;
-    prompt += `Easing: ${config.easing}\n`;
-    prompt += `Delay: ${config.delay}ms\n`;
-    prompt += `Iterations: ${config.iterations}\n`;
-    prompt += `Direction: ${config.direction}\n`;
-    prompt += `Fill Mode: ${config.fillMode}\n`;
-    prompt += `Properties to animate: ${config.properties.join(', ')}\n\n`;
-
-    // Add specific instructions based on animation type
-    switch (config.type) {
-      case 'css-transition':
-        prompt += `Please provide CSS transition code that:\n`;
-        prompt += `- Uses the transition property with the specified duration and easing\n`;
-        prompt += `- Includes hover states or class toggles to trigger the animation\n`;
-        prompt += `- Follows best practices for performance\n`;
-        break;
-        
-      case 'css-keyframes':
-        prompt += `Please provide CSS keyframes animation that:\n`;
-        prompt += `- Defines @keyframes with meaningful steps\n`;
-        prompt += `- Uses the animation property with all specified options\n`;
-        prompt += `- Includes fallbacks for older browsers if needed\n`;
-        break;
-        
-      case 'framer-motion':
-        prompt += `Please provide Framer Motion React code that:\n`;
-        prompt += `- Uses motion components with animate, initial, and transition props\n`;
-        prompt += `- Implements proper TypeScript types\n`;
-        prompt += `- Includes variants for complex animations if appropriate\n`;
-        break;
-        
-      case 'react-spring':
-        prompt += `Please provide React Spring code that:\n`;
-        prompt += `- Uses useSpring or useTransition hooks\n`;
-        prompt += `- Implements spring physics with appropriate config\n`;
-        prompt += `- Includes proper TypeScript types\n`;
-        break;
-        
-      case 'gsap':
-        prompt += `Please provide GSAP animation code that:\n`;
-        prompt += `- Uses gsap.to(), gsap.from(), or gsap.timeline() as appropriate\n`;
-        prompt += `- Includes proper cleanup and performance optimizations\n`;
-        prompt += `- Uses modern GSAP syntax and best practices\n`;
-        break;
-        
-      case 'lottie':
-        prompt += `Please provide Lottie animation integration that:\n`;
-        prompt += `- Shows how to load and control Lottie animations\n`;
-        prompt += `- Includes React component implementation\n`;
-        prompt += `- Covers animation controls (play, pause, loop)\n`;
-        break;
-    }
-
-    prompt += `\nPlease provide complete, working code with comments explaining the implementation.`;
-    
-    sendPrompt(prompt);
   };
 
   const selectedType = ANIMATION_TYPES.find(t => t.value === config.type);
@@ -321,9 +265,6 @@ const AnimationPanel = () => {
           <span style={{ fontSize: '12px', color: '#666' }}>
             {selectedType?.description}
           </span>
-          <Button onClick={handleSendRequest}>
-            Send to Cursor
-          </Button>
         </div>
       </Panel.Footer>
     </Panel>
@@ -355,5 +296,36 @@ export const animationPlugin: ToolbarPlugin = {
   
   onActionClick: () => {
     return <AnimationPanel />;
+  },
+
+  onPromptSend: (prompt: UserMessage) => {
+    // Check if there's an active configuration from the AnimationPanel
+    if (currentAnimationConfig && prompt.contextElements && prompt.contextElements.length > 0) {
+      const selectedTypeInfo = ANIMATION_TYPES.find(t => t.value === currentAnimationConfig!.type);
+      
+      let contextSuffix = "\n\n--- Animation Builder Plugin Context ---\n";
+      contextSuffix += `Please implement a ${selectedTypeInfo?.label} animation on the selected element(s) with these specifications:\n`;
+      contextSuffix += `- Animation Type: ${selectedTypeInfo?.label}\n`;
+      contextSuffix += `- Duration: ${currentAnimationConfig.duration}ms\n`;
+      contextSuffix += `- Easing: ${currentAnimationConfig.easing}\n`;
+      contextSuffix += `- Delay: ${currentAnimationConfig.delay}ms\n`;
+      contextSuffix += `- Iterations: ${currentAnimationConfig.iterations}\n`;
+      contextSuffix += `- Direction: ${currentAnimationConfig.direction}\n`;
+      contextSuffix += `- Fill Mode: ${currentAnimationConfig.fillMode}\n`;
+      contextSuffix += `- Properties: ${currentAnimationConfig.properties.join(', ')}\n`;
+      contextSuffix += `\nApply this animation to the selected element considering its current styles and structure.\n`;
+      contextSuffix += "--- End Animation Builder Plugin Context ---\n";
+
+      return {
+        contextSnippets: [
+          {
+            promptContextName: 'Animation Implementation Request',
+            content: contextSuffix
+          }
+        ]
+      };
+    }
+    // No active configuration or selected elements
+    return null;
   }
 };
