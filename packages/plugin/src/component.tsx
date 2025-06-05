@@ -39,6 +39,147 @@ const COMMON_PROPERTIES = [
   'margin', 'padding', 'border', 'box-shadow', 'border-radius'
 ];
 
+// Professional styling constants
+const styles = {
+  container: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '20px',
+    padding: '24px',
+    backgroundColor: '#ffffff',
+    color: '#000000',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+  },
+  formGroup: {
+    display: 'flex',
+    flexDirection: 'column' as const,
+    gap: '8px',
+  },
+  label: {
+    fontSize: '13px',
+    fontWeight: '600' as const,
+    color: '#000000',
+    letterSpacing: '0.02em',
+    textTransform: 'uppercase' as const,
+    marginBottom: '4px',
+  },
+  input: {
+    width: '100%',
+    padding: '12px 16px',
+    fontSize: '14px',
+    border: '1px solid #e5e5e5',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+    color: '#000000',
+    outline: 'none',
+    transition: 'border-color 0.2s ease',
+    fontFamily: 'inherit',
+  },
+  select: {
+    width: '100%',
+    padding: '12px 16px',
+    fontSize: '14px',
+    border: '1px solid #e5e5e5',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+    color: '#000000',
+    outline: 'none',
+    transition: 'border-color 0.2s ease',
+    fontFamily: 'inherit',
+    cursor: 'pointer',
+  },
+  row: {
+    display: 'flex',
+    gap: '16px',
+    alignItems: 'flex-end',
+  },
+  column: {
+    flex: 1,
+  },
+  checkboxGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+    gap: '12px',
+    marginBottom: '16px',
+  },
+  checkboxLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '8px',
+    fontSize: '13px',
+    color: '#333333',
+    cursor: 'pointer',
+    padding: '8px 0',
+  },
+  checkbox: {
+    width: '16px',
+    height: '16px',
+    accentColor: '#000000',
+  },
+  customPropertyRow: {
+    display: 'flex',
+    gap: '12px',
+    alignItems: 'flex-end',
+  },
+  customPropertyInput: {
+    flex: 1,
+    padding: '10px 14px',
+    fontSize: '13px',
+    border: '1px solid #e5e5e5',
+    borderRadius: '6px',
+    backgroundColor: '#ffffff',
+    color: '#000000',
+    outline: 'none',
+    fontFamily: 'inherit',
+  },
+  button: {
+    padding: '10px 20px',
+    fontSize: '13px',
+    fontWeight: '500' as const,
+    backgroundColor: '#000000',
+    color: '#ffffff',
+    border: 'none',
+    borderRadius: '6px',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease',
+    fontFamily: 'inherit',
+    whiteSpace: 'nowrap' as const,
+  },
+  buttonDisabled: {
+    backgroundColor: '#cccccc',
+    cursor: 'not-allowed',
+  },
+  selectedPropertiesSection: {
+    padding: '16px',
+    backgroundColor: '#f9f9f9',
+    borderRadius: '8px',
+    border: '1px solid #e5e5e5',
+  },
+  selectedPropertiesLabel: {
+    fontSize: '12px',
+    fontWeight: '600' as const,
+    color: '#666666',
+    marginBottom: '8px',
+    textTransform: 'uppercase' as const,
+    letterSpacing: '0.02em',
+  },
+  badgeContainer: {
+    display: 'flex',
+    flexWrap: 'wrap' as const,
+    gap: '6px',
+  },
+  footerContainer: {
+    padding: '20px 24px',
+    borderTop: '1px solid #e5e5e5',
+    backgroundColor: '#fafafa',
+  },
+  footerText: {
+    fontSize: '12px',
+    color: '#666666',
+    fontStyle: 'italic' as const,
+  },
+};
+
 const AnimationPanel = () => {
   const [config, setConfig] = useState<AnimationConfig>({
     type: 'css-transition',
@@ -91,65 +232,68 @@ const AnimationPanel = () => {
       />
       
       <Panel.Content>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px' }}>
+        <div style={styles.container}>
           {/* Animation Type Selection */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-              Animation Type
-            </label>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Animation Type</label>
             <select
               value={config.type}
               onChange={(e) => updateConfig({ type: (e.target as HTMLSelectElement).value as AnimationConfig['type'] })}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+              style={{
+                ...styles.select,
+                ':focus': { borderColor: '#000000' }
+              }}
+              onFocus={(e) => (e.target.style.borderColor = '#000000')}
+              onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
             >
               {ANIMATION_TYPES.map(type => (
                 <option key={type.value} value={type.value}>
-                  {type.label} - {type.description}
+                  {type.label} — {type.description}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Duration */}
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-                Duration (ms)
-              </label>
+          {/* Duration and Delay */}
+          <div style={styles.row}>
+            <div style={styles.column}>
+              <label style={styles.label}>Duration (ms)</label>
               <input
                 type="number"
                 value={config.duration}
                 onChange={(e) => updateConfig({ duration: parseInt((e.target as HTMLInputElement).value) || 300 })}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                style={styles.input}
                 min="0"
                 step="100"
+                onFocus={(e) => (e.target.style.borderColor = '#000000')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
               />
             </div>
 
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-                Delay (ms)
-              </label>
+            <div style={styles.column}>
+              <label style={styles.label}>Delay (ms)</label>
               <input
                 type="number"
                 value={config.delay}
                 onChange={(e) => updateConfig({ delay: parseInt((e.target as HTMLInputElement).value) || 0 })}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                style={styles.input}
                 min="0"
                 step="100"
+                onFocus={(e) => (e.target.style.borderColor = '#000000')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
               />
             </div>
           </div>
 
           {/* Easing */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-              Easing Function
-            </label>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Easing Function</label>
             <select
               value={config.easing}
               onChange={(e) => updateConfig({ easing: (e.target as HTMLSelectElement).value })}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+              style={styles.select}
+              onFocus={(e) => (e.target.style.borderColor = '#000000')}
+              onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
             >
               {EASING_OPTIONS.map(easing => (
                 <option key={easing} value={easing}>{easing}</option>
@@ -158,17 +302,17 @@ const AnimationPanel = () => {
           </div>
 
           {/* Iterations and Direction */}
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-                Iterations
-              </label>
+          <div style={styles.row}>
+            <div style={styles.column}>
+              <label style={styles.label}>Iterations</label>
               <select
                 value={config.iterations}
                 onChange={(e) => updateConfig({ 
                   iterations: (e.target as HTMLSelectElement).value === 'infinite' ? 'infinite' : parseInt((e.target as HTMLSelectElement).value) 
                 })}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                style={styles.select}
+                onFocus={(e) => (e.target.style.borderColor = '#000000')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
               >
                 <option value={1}>1</option>
                 <option value={2}>2</option>
@@ -178,14 +322,14 @@ const AnimationPanel = () => {
               </select>
             </div>
 
-            <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold' }}>
-                Direction
-              </label>
+            <div style={styles.column}>
+              <label style={styles.label}>Direction</label>
               <select
                 value={config.direction}
                 onChange={(e) => updateConfig({ direction: (e.target as HTMLSelectElement).value as AnimationConfig['direction'] })}
-                style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+                style={styles.select}
+                onFocus={(e) => (e.target.style.borderColor = '#000000')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
               >
                 <option value="normal">Normal</option>
                 <option value="reverse">Reverse</option>
@@ -196,14 +340,14 @@ const AnimationPanel = () => {
           </div>
 
           {/* Fill Mode */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-              Fill Mode
-            </label>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Fill Mode</label>
             <select
               value={config.fillMode}
               onChange={(e) => updateConfig({ fillMode: (e.target as HTMLSelectElement).value as AnimationConfig['fillMode'] })}
-              style={{ width: '100%', padding: '8px', borderRadius: '4px', border: '1px solid #ccc' }}
+              style={styles.select}
+              onFocus={(e) => (e.target.style.borderColor = '#000000')}
+              onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
             >
               <option value="none">None</option>
               <option value="forwards">Forwards</option>
@@ -213,47 +357,58 @@ const AnimationPanel = () => {
           </div>
 
           {/* Properties to Animate */}
-          <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 'bold' }}>
-              Properties to Animate
-            </label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+          <div style={styles.formGroup}>
+            <label style={styles.label}>Properties to Animate</label>
+            <div style={styles.checkboxGrid}>
               {COMMON_PROPERTIES.map(property => (
-                <label key={property} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <label key={property} style={styles.checkboxLabel}>
                   <input
                     type="checkbox"
                     checked={selectedProperties.includes(property)}
                     onChange={() => toggleProperty(property)}
+                    style={styles.checkbox}
                   />
-                  <span style={{ fontSize: '12px' }}>{property}</span>
+                  <span>{property}</span>
                 </label>
               ))}
             </div>
             
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={styles.customPropertyRow}>
               <input
                 type="text"
-                placeholder="Custom property..."
+                placeholder="Add custom property..."
                 value={customProperty}
                 onChange={(e) => setCustomProperty((e.target as HTMLInputElement).value)}
-                style={{ flex: 1, padding: '6px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '12px' }}
+                style={styles.customPropertyInput}
+                onFocus={(e) => (e.target.style.borderColor = '#000000')}
+                onBlur={(e) => (e.target.style.borderColor = '#e5e5e5')}
               />
-              <Button onClick={addCustomProperty} disabled={!customProperty}>
-                Add
+              <Button 
+                onClick={addCustomProperty} 
+                disabled={!customProperty}
+              >
+                Add Property
               </Button>
             </div>
           </div>
 
           {/* Selected Properties Display */}
           {selectedProperties.length > 0 && (
-            <div>
-              <label style={{ display: 'block', marginBottom: '4px', fontWeight: 'bold', fontSize: '12px' }}>
-                Selected Properties:
-              </label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+            <div style={styles.selectedPropertiesSection}>
+              <div style={styles.selectedPropertiesLabel}>
+                Selected Properties ({selectedProperties.length})
+              </div>
+              <div style={styles.badgeContainer}>
                 {selectedProperties.map(property => (
                   // @ts-ignore - Badge broke the build
-                  <Badge key={property}>{property}</Badge>
+                  <Badge key={property} style={{
+                    backgroundColor: '#000000',
+                    color: '#ffffff',
+                    fontSize: '11px',
+                    padding: '4px 8px',
+                    borderRadius: '4px',
+                    fontWeight: '500'
+                  }}>{property}</Badge>
                 ))}
               </div>
             </div>
@@ -262,10 +417,10 @@ const AnimationPanel = () => {
       </Panel.Content>
 
       <Panel.Footer>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px' }}>
-          <span style={{ fontSize: '12px', color: '#666' }}>
+        <div style={styles.footerContainer}>
+          <div style={styles.footerText}>
             {selectedType?.description}
-          </span>
+          </div>
         </div>
       </Panel.Footer>
     </Panel>
