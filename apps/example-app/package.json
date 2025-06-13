@@ -9,10 +9,15 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@lottiefiles/react-lottie-player": "^3.5.3",
     "@stagewise/toolbar-next": "^0.2.0",
+    "gsap": "^3.12.2",
+    "lottie-web": "^5.12.2",
+    "motion": "^12.17.3",
     "next": "15.3.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-spring": "^9.7.3",
     "stagewise-animation-plugin": "workspace:*"
   },
   "devDependencies": {
